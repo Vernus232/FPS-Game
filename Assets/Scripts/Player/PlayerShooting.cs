@@ -5,9 +5,12 @@ using UnityEngine;
 public class PlayerShooting : MonoBehaviour
 {
     [Header("Options")]
+    public bool isDynamic;
     public float BulletDamage;
     public float ShootingRange;
     public KeyCode shootKey = KeyCode.Mouse0;
+    [SerializeField] private ParticleSystem shotParticleSystem;
+    [SerializeField] private GameObject impactEffect;
 
     [SerializeField] private Camera fpsCam;
 
@@ -20,11 +23,18 @@ public class PlayerShooting : MonoBehaviour
 
     private void Shoot()
     {
+        shotParticleSystem.Play();
+        
         RaycastHit hit;
         
         if (Physics.Raycast(fpsCam.transform.position, fpsCam.transform.forward, out hit, ShootingRange))
         {
-            print(hit.transform.name);
+            HealthSystem target = hit.transform.GetComponent<HealthSystem>();
+            if (target != null)
+                target.TakeDamage(BulletDamage);
+
+            Instantiate(impactEffect, hit.point, Quaternion.LookRotation(hit.normal));
         }
+
     }
 }
